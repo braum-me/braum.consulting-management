@@ -1,0 +1,494 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   BRAUM CONSULTING · WARTUNG
+   Tokens-Snapshot aus v2 (dark-only für die Übergangsseite).
+   ============================================================================ */
+
+@theme {
+  --font-display: var(--font-akmorn), var(--font-geist-sans), system-ui, sans-serif;
+  --font-body:    var(--font-geist-sans), system-ui, sans-serif;
+  --font-accent:  var(--font-instrument-serif), Georgia, serif;
+  --font-mono:    var(--font-geist-mono), ui-monospace, monospace;
+
+  --color-bg-base:    #0F0E0C;
+  --color-fg-default: #F2F0EB;
+  --color-brand:      #DC8044;
+  --color-accent:     #C8622A;
+}
+
+:root {
+  --brand:        #DC8044;
+  --brand-hover:  #E89254;
+  --accent:       #C8622A;
+  --accent-hover: #D87434;
+  --on-accent:    #FBF0EA;
+
+  --bg-base:    #0F0E0C;
+  --bg-subtle:  #161513;
+  --bg-elevated:#232220;
+
+  --fg-default: #F2F0EB;
+  --fg-muted:   #9F9B92;
+  --fg-subtle:  #6C6862;
+  --fg-faint:   #4A4742;
+
+  --border-subtle:  rgba(242, 240, 235, 0.06);
+  --border-default: rgba(242, 240, 235, 0.10);
+
+  --sh-1: 0 1px 1px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.30);
+  --sh-2: 0 2px 2px rgba(0, 0, 0, 0.40), 0 6px 12px rgba(0, 0, 0, 0.45);
+  --sh-focus: 0 0 0 3px rgba(200, 98, 42, 0.34);
+
+  /* SVG-Noise als Overlay über dem Gradient — bricht das clean-Gradient-Look
+     gerade so weit, dass Banding und „CGI-Plastik"-Wirkung vermieden werden. */
+  --noise-svg: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='280' height='280'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+/* ── Base ──────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  /* Hard-Fallback Gradient direkt aufs html — sichtbar bevor JS oder
+     Komponenten überhaupt geladen sind. AnimatedGradient + Particles
+     legen sich später drüber. */
+  background:
+    radial-gradient(60% 50% at 18% 0%, rgba(220, 128, 68, 0.55), transparent 65%),
+    radial-gradient(45% 60% at 92% 92%, rgba(200, 98, 42, 0.42), transparent 65%),
+    radial-gradient(50% 45% at 60% 40%, rgba(146, 48, 30, 0.30), transparent 70%),
+    linear-gradient(180deg, #0F0E0C 0%, #1A0E07 100%);
+  background-color: #0F0E0C;
+  background-attachment: fixed;
+  color: var(--fg-default);
+  min-height: 100svh;
+  overflow-y: auto;
+}
+body {
+  background: transparent;
+  color: var(--fg-default);
+}
+body {
+  margin: 0;
+  width: 100%;
+  min-height: 100svh;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--brand);
+  color: #0F0E0C;
+}
+
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+a {
+  color: var(--brand);
+  text-decoration: none;
+}
+
+/* ── CTA Primary polish — Lift + Glow on hover ─────────────────────────── */
+.cta-primary {
+  position: relative;
+  isolation: isolate;
+  transition:
+    transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    background 220ms ease,
+    box-shadow 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cta-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  z-index: -1;
+  box-shadow:
+    0 0 0 1px rgba(200, 98, 42, 0.55),
+    0 10px 32px rgba(200, 98, 42, 0.40),
+    0 0 56px rgba(220, 128, 68, 0.32);
+  transition: opacity 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cta-primary:hover {
+  transform: translateY(-1px);
+  background: var(--accent-hover);
+}
+.cta-primary:hover::after { opacity: 1; }
+.cta-primary:active { transform: translateY(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-primary,
+  .cta-primary::after { transition: none; }
+  .cta-primary:hover { transform: none; }
+}
+
+/* Footer-Link Hover */
+footer a:hover {
+  color: var(--fg-default) !important;
+  border-bottom-color: var(--fg-faint) !important;
+}
+
+/* ── Hero-Layout — v2-Hero-Komposition ────────────────────────────────── */
+.hero-stack {
+  position: relative;
+  z-index: 1;
+  min-height: 100svh;
+  overflow: hidden;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 5;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 1240px;
+  min-height: 100svh;
+  padding: clamp(28px, 4vw, 48px) clamp(24px, 4vw, 48px) clamp(28px, 4vw, 48px);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: clamp(24px, 3vw, 48px);
+}
+
+.hero-top {
+  display: flex;
+  align-items: center;
+}
+
+/* GIANT Monogramm — Backdrop-Element wie im v2-Hero (z 1). */
+.hero-monogram-wrap {
+  position: absolute;
+  pointer-events: none;
+  /* Mobile-Default: sichtbar als Hintergrund-Element, etwas reinragend
+     und kräftig genug um wahrnehmbar zu sein (aber nicht den Text zu stören). */
+  right: -22vw;
+  top: 50%;
+  width: clamp(560px, 130vw, 900px);
+  height: auto;
+  aspect-ratio: 2 / 1;
+  transform: translateY(-50%);
+  color: #F2F0EB;
+  opacity: 0.18;
+  filter:
+    drop-shadow(0 0 60px rgba(200, 98, 42, 0.55))
+    drop-shadow(0 0 16px rgba(220, 128, 68, 0.42));
+  z-index: 1;
+  animation: monogram-settle 1.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (min-width: 768px) {
+  .hero-monogram-wrap {
+    right: -30vw;
+    top: 50%;
+    width: clamp(700px, 120vw, 1200px);
+    opacity: 0.22;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-monogram-wrap {
+    right: -22vw;
+    top: 50%;
+    width: clamp(900px, 145vw, 1900px);
+    opacity: 0.30;
+  }
+}
+
+@keyframes monogram-settle {
+  from { transform: translateY(-50%) scale(1.05); }
+  to   { transform: translateY(-50%) scale(1); }
+}
+
+/* ── Main Stack (Text + Portrait) ─────────────────────────────────── */
+.hero-main {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(28px, 5vw, 56px);
+  align-items: center;
+  align-self: center;
+  width: 100%;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* Tablet: Text + Portrait nebeneinander */
+  .hero-main {
+    grid-template-columns: minmax(0, 1.15fr) minmax(220px, 0.85fr);
+    gap: clamp(24px, 4vw, 56px);
+  }
+}
+
+.hero-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 860px;
+  padding-top: clamp(8px, 2vh, 24px);
+}
+
+@media (min-width: 1024px) {
+  .hero-text {
+    /* Desktop: schmaler weil rechts das Portrait absolute liegt */
+    max-width: clamp(440px, 50vw, 640px);
+    padding-top: clamp(40px, 8vh, 100px);
+  }
+}
+
+.hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.20em;
+  text-transform: uppercase;
+  color: var(--brand);
+  margin: 0 0 clamp(20px, 3vw, 32px);
+}
+
+.hero-headline {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(40px, 7vw, 96px);
+  line-height: 0.96;
+  letter-spacing: -0.035em;
+  color: var(--fg-default);
+  margin: 0 0 clamp(24px, 3.5vw, 40px);
+}
+
+.italic-accent {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--brand);
+  letter-spacing: -0.02em;
+}
+
+.hero-lede {
+  font-size: clamp(17px, 1.6vw, 20px);
+  line-height: 1.55;
+  color: var(--fg-muted);
+  margin-bottom: clamp(32px, 4vw, 48px);
+  max-width: 540px;
+}
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 16px;
+  padding: 14px 22px;
+  border-radius: 6px;
+  text-decoration: none;
+  letter-spacing: -0.005em;
+  box-shadow: var(--sh-2);
+}
+
+.hero-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--fg-subtle);
+  letter-spacing: 0.04em;
+}
+.hero-footer a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 220ms ease, border-color 220ms ease;
+}
+.hero-footer a:hover {
+  color: var(--fg-default);
+  border-bottom-color: var(--fg-faint);
+}
+
+/* ── Portrait ─────────────────────────────────────────────────────────
+   Zwei Varianten im DOM, nur eine pro Breakpoint sichtbar:
+   - .hero-portrait--inline    → Mobile + Tablet, im Content-Flow
+   - .hero-portrait--floating  → Desktop, absolute über Monogramm
+   ─────────────────────────────────────────────────────────────────── */
+.hero-portrait-wrap {
+  position: relative;
+  isolation: isolate;
+}
+
+.hero-portrait--inline {
+  width: 100%;
+  max-width: clamp(220px, 60vw, 320px);
+  margin: 0 auto;
+  aspect-ratio: 3 / 4;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hero-portrait--inline {
+    /* Tablet: in der rechten Grid-Cell, kein auto-margin */
+    max-width: clamp(220px, 36vw, 360px);
+    margin: 0;
+  }
+}
+
+.hero-portrait--floating {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .hero-portrait--inline { display: none; }
+  .hero-portrait--floating {
+    display: block;
+    position: absolute;
+    z-index: 3;
+    pointer-events: none;
+    right: clamp(16px, 3vw, 80px);
+    top: 50%;
+    transform: translateY(-50%);
+    width: clamp(280px, 28vw, 480px);
+    aspect-ratio: 3 / 4;
+    isolation: isolate;
+  }
+}
+
+.hero-portrait-glow {
+  position: absolute;
+  inset: -8% -10% -12% -10%;
+  z-index: 0;
+  background:
+    radial-gradient(45% 55% at 55% 35%, rgba(220, 128, 68, 0.55), transparent 65%),
+    radial-gradient(55% 60% at 50% 70%, rgba(200, 98, 42, 0.35), transparent 70%),
+    radial-gradient(70% 75% at 50% 50%, rgba(146, 48, 30, 0.20), transparent 75%);
+  filter: blur(20px);
+  animation: portrait-glow-breathe 9s ease-in-out infinite;
+}
+
+@keyframes portrait-glow-breathe {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50%      { opacity: 1.0;  transform: scale(1.06); }
+}
+
+.hero-portrait-img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter:
+    drop-shadow(0 24px 48px rgba(0, 0, 0, 0.55))
+    drop-shadow(0 0 32px rgba(200, 98, 42, 0.20));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-portrait-glow,
+  .hero-monogram-wrap {
+    animation: none !important;
+  }
+}
+
+.hero-reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: hero-reveal-in 950ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: 0ms;
+  /* Frühe Sichtbarkeit als Fallback wenn animation nicht greift */
+  animation-fill-mode: forwards;
+}
+
+@keyframes hero-reveal-in {
+  0%   { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+}
+
+/* ── Animated Gradient Blobs ─────────────────────────────────────────────
+   Wandernde Radial-Gradients als Hintergrund. CSS-only, läuft im
+   Compositor — keine Layout-/Paint-Kosten auf Scroll.
+   ─────────────────────────────────────────────────────────────────────── */
+.ag-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  will-change: transform, opacity;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  /* animation-fill-mode backwards: from-state ab erstem Paint —
+     verhindert 1-Frame-Flash an untransformierter Position. */
+  animation-fill-mode: backwards !important;
+  /* GPU-Layer ab erstem Paint, kein Layer-Promotion-Glitch. */
+  transform: translateZ(0);
+}
+
+.ag-blob--1 {
+  width: 60vw;
+  height: 60vw;
+  top: -12%;
+  left: -10%;
+  background: radial-gradient(circle, rgba(220, 128, 68, 0.50) 0%, transparent 65%);
+  animation: ag-drift-1 18s ease-in-out infinite;
+}
+.ag-blob--2 {
+  width: 52vw;
+  height: 52vw;
+  top: 8%;
+  right: -12%;
+  background: radial-gradient(circle, rgba(200, 98, 42, 0.46) 0%, transparent 65%);
+  animation: ag-drift-2 22s ease-in-out infinite;
+}
+.ag-blob--3 {
+  width: 65vw;
+  height: 65vw;
+  bottom: -22%;
+  left: 16%;
+  background: radial-gradient(circle, rgba(146, 48, 30, 0.42) 0%, transparent 65%);
+  animation: ag-drift-3 26s ease-in-out infinite;
+}
+.ag-blob--4 {
+  width: 44vw;
+  height: 44vw;
+  bottom: -6%;
+  right: -2%;
+  background: radial-gradient(circle, rgba(232, 146, 84, 0.34) 0%, transparent 65%);
+  animation: ag-drift-4 20s ease-in-out infinite;
+}
+
+@keyframes ag-drift-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.85; }
+  50%      { transform: translate(8vw, 6vh) scale(1.10); opacity: 1; }
+}
+@keyframes ag-drift-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.80; }
+  50%      { transform: translate(-7vw, 5vh) scale(1.08); opacity: 0.95; }
+}
+@keyframes ag-drift-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.78; }
+  50%      { transform: translate(-6vw, -7vh) scale(1.12); opacity: 0.92; }
+}
+@keyframes ag-drift-4 {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.82; }
+  50%      { transform: translate(6vw, -5vh) scale(1.06); opacity: 0.98; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ag-blob {
+    animation: none !important;
+  }
+}
